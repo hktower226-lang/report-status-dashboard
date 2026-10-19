@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>보고양식 및 임대사 약속사항</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,'Noto Sans KR',sans-serif;max-width:800px;margin:20px auto;padding:0 14px;line-height:1.5;color:#243447;background:#f5f7fa}h2{border-bottom:2px solid #2c3e50;padding-bottom:8px;margin-top:30px;color:#2c3e50}.form-group{background:#fff;padding:17px;border:1px solid #dde3ea;border-radius:10px;margin-bottom:18px;box-shadow:0 2px 9px #152a3c0b}textarea{width:100%;height:180px;font-family:monospace;padding:11px;border:1px solid #cbd5e1;border-radius:5px;resize:vertical;font-size:14px}button{background:#219653;color:#fff;border:0;padding:10px 15px;border-radius:5px;cursor:pointer;font-weight:bold;margin-top:7px}button:hover{background:#187f45}#searchInput{width:100%;padding:11px;margin-bottom:12px;border:1px solid #27ae60;border-radius:5px;font-size:14px}.table-container{overflow-x:auto}table{width:100%;border-collapse:collapse;background:#fff;min-width:490px}th,td{border:1px solid #ddd;padding:10px;text-align:left;font-size:14px}th{background:#2c3e50;color:#fff;text-align:center}td.center{text-align:center}tr:nth-child(even){background:#f2f5f8}.muted{color:#64748b;font-size:13px}#status{margin:8px 0;font-size:13px;color:#57677a}
+</style>
+</head>
+<body>
+<h2>📊 임대사별 약속사항 현황</h2>
+<div class="form-group">
+<input type="search" id="searchInput" placeholder="🔍 임대사명 또는 약속사항 검색..." aria-label="임대사 검색">
+<div class="table-container"><table id="companyTable"><thead><tr><th style="width:10%">연번</th><th style="width:25%">임대사</th><th style="width:65%">약속사항</th></tr></thead><tbody></tbody></table></div>
+<p id="status" aria-live="polite"></p>
+</div>
+<h2>📋 보고양식 텍스트 복사</h2>
+<div class="form-group"><h3>[양식 1] 대체보고</h3><textarea id="form1">[양식 1] 대체보고
+일자: 
+분류: (본조 / 본부)
+대체신청자: 
+직위: 
+대체조합원: 
+업무내용: 
+업무동반: </textarea><button data-copy="form1">양식 1 복사하기</button></div>
+<div class="form-group"><h3>[양식 2] 이력서 선정 공고</h3><textarea id="form2">[양식 2] 이력서 선정 공고
+현장명: 
+임대사명: 
+현장주소: 
+계약기간(예상): 
+현장개요(기준층): 
+장비대수: 
+장비명: 
+기타: 
+• 이력서 선정 마감: 당일 공고 후 ~ 16:00까지
+• 담당지부장 투표: 현장명 희망/비희망 공개투표 (마감시간 설정)</textarea><button data-copy="form2">양식 2 복사하기</button></div>
+<div class="form-group"><h3>[양식 3] 종료자 지침 현장종료보고</h3><textarea id="form3">[양식 3] 종료자 지침 현장종료보고
+00지부 현장종료 보고
+성명: 
+원청사: 
+임대사: 
+현장명: 
+출근일자: 
+퇴사일자: 
+※ 위 양식에 맞춰 보고 후, 아래 오픈채팅방에 참여시키시기 바랍니다.
+👉 https://open.kakao.com/o/gTfImPph</textarea><button data-copy="form3">양식 3 복사하기</button></div>
+<div class="form-group"><h3>[양식 4] 출근보고</h3><textarea id="form4">[양식 4] 출근보고
+00지부 출근보고
+성명: 
+원청사: 
+임대사: 
+현장명: 
+출근일자: 
+☆현장,임대사 명함. 현장개요표 사진첨부</textarea><button data-copy="form4">양식 4 복사하기</button></div>
+<script>
+const tbody=document.querySelector('#companyTable tbody');
+let companies=[];
+function render(){const q=document.querySelector('#searchInput').value.trim().toLocaleLowerCase();tbody.replaceChildren();const filtered=companies.filter(x=>(x.name+' '+x.promise).toLocaleLowerCase().includes(q));filtered.forEach((x,i)=>{const tr=document.createElement('tr');[String(i+1),x.name,x.promise].forEach((value,j)=>{const td=document.createElement('td');td.textContent=value;if(j===0)td.className='center';tr.appendChild(td)});tbody.appendChild(tr)});document.querySelector('#status').textContent=`${filtered.length}개 업체 표시 / 전체 ${companies.length}개`}
+document.querySelector('#searchInput').addEventListener('input',render);
+document.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',async()=>{const ta=document.getElementById(btn.dataset.copy);try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(ta.value)}else{ta.focus();ta.select();if(!document.execCommand('copy'))throw Error('복사 실패')}alert('클립보드에 복사되었습니다!')}catch(e){alert('자동 복사가 제한되었습니다. 텍스트를 선택해 직접 복사해주세요.')}}));
+fetch('./data.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('데이터를 읽을 수 없음');return r.json()}).then(d=>{companies=Array.isArray(d.companies)?d.companies:[];render()}).catch(e=>{document.querySelector('#status').textContent='약속사항 데이터를 불러오지 못했습니다. GitHub Pages에서 열어주세요.';console.error(e)});
+</script>
+</body>
+</html>
